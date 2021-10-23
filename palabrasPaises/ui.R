@@ -50,13 +50,33 @@ shinyUI(fluidPage(
                               weekstart = 1,
                               language = "es",
                               separator = "a"),
-                           checkboxInput("mas18","Mensajes para +18", value = TRUE)),
+                           checkboxInput("mas18","Mensajes para +18", value = TRUE)
+                           ),
                          column(width = 2),
                          column(width = 5, align = "center",
                            h4("Rango de fecha seleccionado: "),
                            verbatimTextOutput("dateAge"))))
         ),
-        fluidRow(column(width = 11,plotOutput("masAparecen", height = 500)))
+        fluidRow(column(width = 11,plotOutput("masAparecen", height = 500))),
+        fluidRow(width = 11, align = "center",
+            column(width = 5, h4("-- Palabras y su popularidad --")),
+            column(width = 6, 
+                   numericInput("selectMinPalabras",
+                                "Seleccione un minimo de frecuencia para las palabras", 
+                                value = 10
+                                ),
+                   dateRangeInput("dateRangepop", "Seleccione un rango de fecha",
+                                  start = "2008-01-25",
+                                  end = "2016-11-22",
+                                  weekstart = 1,
+                                  language = "es",
+                                  separator = "a"),
+                   checkboxInput("mas18pop","Mensajes para +18", value = FALSE)
+                   ),
+        ),
+        fluidRow(column(width = 11,plotOutput("palabrasPop", height = 500))),
+        
+        DT::dataTableOutput("tblPalabras")
     ),
     tabPanel(
         "+Paises",
@@ -71,10 +91,26 @@ shinyUI(fluidPage(
                            choices = countries,
                            selected = "china"))),
                DT::dataTableOutput("tblPais"))
-        # seleccione el pais
-        # ver todos los titulos que tengan ese pais
+        
+    ),
+    tabPanel(
+        "Autores",
+        h2("Analisis de Autores"),
+        fluidRow( width = 11,
+              column(width = 6,
+                     plotOutput("autoresPlot", height = 500)),
+              column(width = 5,
+                   h4("--- Autores ---"),
+                   numericInput("selectMinPublicaciones", "Seleccione un mínimo de publicaciones del autor",
+                                value = 10
+                   ),
+                   textInput("inputStrAuthor", "Buscar un autor\n(dejar vacío para no usar este filtro)", value="")
+                    ),
+                   DT::dataTableOutput("tblAutores")
+        )
+        )
+
         
     )
-    
     )
-))
+)

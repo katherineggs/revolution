@@ -1,4 +1,4 @@
-
+library(forcats)
 library(shiny)
 library(dplyr)
 library(lubridate)
@@ -52,7 +52,7 @@ shinyServer(function(input, output) {
   # Grafica
   output$masAparecen <- renderPlot({
     data %>% 
-      select(date_created, title, over_18)%>%
+      select(date_created, title, over_18, up_votes, down_votes)%>%
       filter(date_created >= as_date(input$dateRange[1]) & 
                date_created <= as_date(input$dateRange[2])) %>%
       filter(over_18 == ifelse(input$mas18 == TRUE, "True", "False")) %>%
@@ -65,7 +65,7 @@ shinyServer(function(input, output) {
       filter(n > ifelse(input$mas18 == TRUE, 8, 15000)) %>%
       ggplot(aes(n,word))+
       geom_col(fill = "green") +
-      labs(x = "Palabra", y = "Cant. veces") +
+      labs(x = "Cant. veces", y = "Palabra") +
       geom_text(aes(label = n), hjust = 1.2, colour = "white", fontface = "bold")
   })
   #grafica paises
@@ -93,11 +93,69 @@ shinyServer(function(input, output) {
       filter(hasCountry == input$selectCountry) %>%
       DT::datatable()
   })
+  
+  output$tblAutores <- DT::renderDataTable({
+    data %>% 
+      select(author, title, date_created,up_votes) %>%
+      filter(grepl(input$inputStrAuthor, author, fixed = TRUE)) %>%
+      group_by(author) %>% 
+      summarise(total_publicaciones = n(), total_upvotes = sum(up_votes), promedio= sum(up_votes)/n()) %>% 
+      filter(total_publicaciones >= input$selectMinPublicaciones) %>% 
+      mutate(author = fct_reorder(author, promedio)) %>%
+      DT::datatable()
+  })
+  
+  output$tblPalabras <- DT::renderDataTable({
+    data %>% 
+      select(date_created, title, over_18, up_votes, down_votes)%>%
+      filter(date_created >= as_date(input$dateRangepop[1]) & 
+               date_created <= as_date(input$dateRangepop[2])) %>%
+      filter(over_18 == ifelse(input$mas18pop == TRUE, "True", "False")) %>%
+      unnest_tokens(output = word, input = title) %>% 
+      group_by(word) %>% 
+      summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 
+      mutate(isCommon = word %in% commonWords) %>%
+      filter(isCommon == FALSE) %>%
+      filter(n >= input$selectMinPalabras) %>% 
+      mutate(word = reorder(word,promedio)) %>%
+      DT::datatable(options = list(order = list(list(4, 'desc'))))
+  })
+  output$palabrasPop <- renderPlot({
+    data %>% 
+      select(date_created, title, over_18, up_votes, down_votes)%>%
+      filter(date_created >= as_date(input$dateRangepop[1]) & 
+               date_created <= as_date(input$dateRangepop[2])) %>%
+      filter(over_18 == ifelse(input$mas18pop == TRUE, "True", "False")) %>%
+      unnest_tokens(output = word, input = title) %>% 
+      group_by(word) %>% 
+      summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 
+      mutate(isCommon = word %in% commonWords) %>%
+      filter(isCommon == FALSE) %>%
+      filter(n >= input$selectMinPalabras) %>% 
+      mutate(word = reorder(word,promedio)) %>%
+      top_n(20, promedio) %>%
+      ggplot(aes(promedio,word))+
+      geom_col(fill = "green") +
+      labs(x = "Palabra", y = "promedio") +
+      geom_text(aes(label = promedio), hjust = 1.2, colour = "white", fontface = "bold")
+  })
+  output$autoresPlot <- renderPlot({
+    data %>% 
+      select(author, title, date_created,up_votes) %>%
+      filter(grepl(input$inputStrAuthor, author, fixed = TRUE)) %>%
+      group_by(author) %>% 
+      summarise(total_publicaciones = n(), total_upvotes = sum(up_votes), promedio= round(sum(up_votes)/n())) %>% 
+      filter(total_publicaciones >= input$selectMinPublicaciones) %>% 
+      top_n(20, promedio) %>%
+      mutate(author = fct_reorder(author, promedio)) %>%
+      ggplot(aes(promedio,author))+
+      geom_col(fill = "green") +
+      labs(x = "promedio", y = "autor") +
+      geom_text(aes(label = promedio), hjust = 1.2, colour = "white", fontface = "bold")
+  })
 })
   
-  
-  
-  
+
   
   
   

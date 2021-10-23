@@ -121,7 +121,38 @@ data %>%
   filter(hasCountry == selectCountry) %>%
   View()
 
+input$mas18 = FALSE
 
+data %>% 
+  select(date_created, title, over_18, up_votes, down_votes)%>%
+  filter(date_created >= as_date(input$dateRange[1]) & 
+           date_created <= as_date(input$dateRange[2])) %>%
+  filter(over_18 == ifelse(FALSE == TRUE, "True", "False")) %>%
+  unnest_tokens(output = word, input = title) %>% 
+  count(word, sort = TRUE) %>%
+  mutate(isCommon = word %in% commonWords) %>%
+  filter(isCommon == FALSE) %>%
+  mutate(word = reorder(word,n)) %>%
+  #filter(n > 8) %>%
+  filter(n > ifelse(FALSE == TRUE, 8, 15000)) %>%
+  DT::datatable()
 
+library(dplyr)
+library(tidytext)
+d = data_frame(reviewText = c('1 2 3 4 5 able', '1 2\n3 4 5\n6\n7\n8\n9 10 above', '1!2', '1',
+                              '!', '', '\n', '1', 'able able', 'above above', 'able', 'above'),
+               asin = rep(letters, each = 2, length.out = length(reviewText)))
+?rep
 
+data("crude")
+myTdm <- as.matrix(TermDocumentMatrix(crude))
+unnest_tokens()
 
+library(dplyr)
+library(janeaustenr)
+
+d <- tibble(txt = prideprejudice)
+d
+
+d %>%
+  unnest_tokens(word, txt)
