@@ -4,6 +4,9 @@ library(dplyr)
 library(lubridate)
 library(tidytext)
 library(shinydashboard)
+library(stringr)
+library(purrr)
+library(tidyr)
 
 #Base de datos
 reddit <- read.csv("../reddit_worldnews_start_to_2016-11-22.csv")
@@ -88,13 +91,12 @@ shinyUI(fluidPage(
               
               
               tabPanel("Palabras",
-                       h2(""),
+                       h2("Palabras que más aparecen: "), br(),
                        wellPanel(
                          fluidRow(
                            column(
                              width = 11, align = "center",
                              column(width = 5,
-                                    h4("-- Palabras que mas aparecen --"),
                                     dateRangeInput("dateRange", "Seleccione un rango de fecha",
                                                    start = "2008-01-25",
                                                    end = "2016-11-22",
@@ -108,37 +110,42 @@ shinyUI(fluidPage(
                                     h4("Rango de fecha seleccionado: "),
                                     verbatimTextOutput("dateAge"))))
                        ),
-                       fluidRow(column(width = 11,plotOutput("masAparecen", height = 500))),
-                       fluidRow(width = 11, align = "center",
-                                column(width = 5, h4("-- Palabras y su popularidad --")),
-                                column(width = 6, 
-                                       numericInput("selectMinPalabras",
-                                                    "Seleccione un minimo de frecuencia para las palabras", 
-                                                    value = 10
-                                       ),
-                                       dateRangeInput("dateRangepop", "Seleccione un rango de fecha",
-                                                      start = "2008-01-25",
-                                                      end = "2016-11-22",
-                                                      weekstart = 1,
-                                                      language = "es",
-                                                      separator = "a"),
-                                       checkboxInput("mas18pop","Mensajes para +18", value = FALSE)
-                                ),
+                       br(), br(), 
+                       fluidRow(
+                         column(width = 11,plotOutput("masAparecen", height = 500))), br(), br(), 
+                       wellPanel(
+                         fluidRow(width = 11, align = "center",
+                                  h4("Palabras y su popularidad: "),
+                                  column(width = 6, 
+                                         numericInput("selectMinPalabras",
+                                                      "Seleccione un mínimo de frecuencia para las palabras", 
+                                                      value = 10
+                                         ),
+                                  ),
+                                  column(width = 6,
+                                    dateRangeInput("dateRangepop", "Seleccione un rango de fecha",
+                                                   start = "2008-01-25",
+                                                   end = "2016-11-22",
+                                                   weekstart = 1,
+                                                   language = "es",
+                                                   separator = "a"),
+                                    checkboxInput("mas18pop","Mensajes para +18", value = FALSE)
+                                  )
+                         )
                        ),
                        fluidRow(column(width = 11,plotOutput("palabrasPop", height = 500))),
                        
                        DT::dataTableOutput("tblPalabras")
               ),
               tabPanel(
-                "Paises",
-                h2(""),
+                "Países",
+                h2("Países que mas aparecen: "), br(),
                 column(width = 5,
-                       h4("--- Países que mas aparecen ---"),
                        plotOutput("paises", height = 500),
                        checkboxInput("paises18","En segmentos para +18", value = TRUE)),
                 column(width = 7,
-                       wellPanel(fluidRow(h4("Seleccione un pais para ver los titulos que lo incluyan"),
-                                          selectInput("selectCountry", "Seleccione un país",
+                       wellPanel(fluidRow(
+                                          selectInput("selectCountry", "Seleccione un país para ver los titulos que lo incluyan",
                                                       choices = countries,
                                                       selected = "china"))),
                        DT::dataTableOutput("tblPais"))
@@ -146,12 +153,12 @@ shinyUI(fluidPage(
               ),
               tabPanel(
                 "Autores",
-                h2("Análisis de Autores"),
+                h2("Análisis de Autores: "), br(),
                 fluidRow( width = 11,
                           column(width = 6,
                                  plotOutput("autoresPlot", height = 500)),
                           column(width = 5,
-                                 h4("--- Autores ---"),
+                                 h3("Autores: "),
                                  numericInput("selectMinPublicaciones", "Seleccione un mínimo de publicaciones del autor",
                                               value = 10
                                  ),

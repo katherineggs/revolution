@@ -7,6 +7,9 @@ library(shinydashboard)
 library(flexdashboard)
 library(ggplot2)
 library(forcats)
+library(stringr)
+library(purrr)
+library(tidyr)
 
 #Base de datos
 reddit <- read.csv("../reddit_worldnews_start_to_2016-11-22.csv")

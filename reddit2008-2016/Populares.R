@@ -20,6 +20,9 @@ library(dplyr)
 library(lubridate)
 library(tidytext)
 library(ggplot2)
+library(stringr)
+library(purrr)
+library(tidyr)
 
 #Base de datos
 reddit <- read.csv("/Users/andreareyes/Desktop/Data Product/parcial2/revolution/reddit_worldnews_start_to_2016-11-22.csv")
