@@ -12,7 +12,7 @@ library(purrr)
 library(tidyr)
 
 #Base de datos
-reddit <- read.csv("../reddit_worldnews_start_to_2016-11-22.csv")
+reddit <- read.csv("reddit_worldnews_start_to_2016-11-22.csv")
 
 #Limpieza de datos
 reddit <- reddit %>%

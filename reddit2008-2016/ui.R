@@ -9,7 +9,7 @@ library(purrr)
 library(tidyr)
 
 #Base de datos
-reddit <- read.csv("../reddit_worldnews_start_to_2016-11-22.csv")
+reddit <- read.csv("reddit_worldnews_start_to_2016-11-22.csv")
 
 countries <- c("Afghanistan","Albania","Algeria","Andorra","Angola","Antigua","Barbuda","Argentina",
                "Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados",
