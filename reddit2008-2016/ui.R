@@ -142,7 +142,7 @@ shinyUI(fluidPage(
                 h2("Países que mas aparecen: "), br(),
                 column(width = 5,
                        plotOutput("paises", height = 500),
-                       checkboxInput("paises18","En segmentos para +18", value = TRUE)),
+                       checkboxInput("paises18","Mensajes para +18", value = TRUE)),
                 column(width = 7,
                        wellPanel(fluidRow(
                                           selectInput("selectCountry", "Seleccione un país para ver los titulos que lo incluyan",

@@ -16,8 +16,8 @@ reddit <- read.csv("reddit_worldnews_start_to_2016-11-22.csv", nrows=60000)
 
 #Limpieza de datos
 reddit <- reddit %>%
-  mutate(date_created = ymd(date_created)) %>%
-  mutate(year = format(as.Date(date_created),  "%Y"))
+  mutate(date_created = ifelse( suppressWarnings(is.na(ymd(date_created))), suppressWarnings(mdy(date_created)), suppressWarnings(ymd(date_created)))) %>% 
+  mutate(year = format(as.Date(date_created, origin="1970-01-01"),  "%Y"))
 
 #Estos son los personajes públicos más admirados del mundo 
 famosos <- c("jolie", "obama", "winfrey", "isabel II", "clinton", "watson", "yousafzai", 
@@ -156,14 +156,14 @@ shinyServer(function(input, output) {
       select(date_created, title, over_18, up_votes, down_votes)%>%
       filter(date_created >= as_date(input$dateRange[1]) & 
                date_created <= as_date(input$dateRange[2])) %>%
-      filter(over_18 == ifelse(input$mas18 == TRUE, "True", "False")) %>%
+      filter(over_18 == ifelse(input$mas18pop == TRUE, 
+                               over_18, 
+                               "FALSE")) %>%
       unnest_tokens(output = word, input = title) %>% 
       count(word, sort = TRUE) %>%
       mutate(isCommon = word %in% commonWords) %>%
       filter(isCommon == FALSE) %>%
       mutate(word = reorder(word,n)) %>%
-      #filter(n > 8) %>%
-      filter(n > ifelse(input$mas18 == TRUE, 8, 15000)) %>%
       ggplot(aes(n,word))+
       geom_col(fill = "green") +
       labs(x = "Cant. veces", y = "Palabra") +
@@ -173,15 +173,13 @@ shinyServer(function(input, output) {
   output$paises <- renderPlot({
     reddit %>% 
       filter(over_18 == ifelse(input$paises18 == TRUE, 
-                               "True", 
-                               "False")) %>%
+                               over_18, 
+                               "FALSE")) %>%
       unnest_tokens(output = pais, input = title) %>% 
       count(pais, sort = TRUE) %>%
       mutate(isCountr = pais %in% countries) %>%
       filter(isCountr == TRUE) %>%
       mutate(pais = reorder(pais,n)) %>%
-      #filter(n > 2) %>%
-      filter(n > ifelse(input$paises18 == TRUE, 2, 10000)) %>%
       ggplot(aes(n,pais))+
       geom_col(fill = "purple") +
       labs(x = "Cant. veces", y = "País") +
@@ -189,9 +187,14 @@ shinyServer(function(input, output) {
   })
   output$tblPais <- DT::renderDataTable({
     reddit %>% 
-      select(date_created,up_votes,title,author) %>%
-      mutate(hasCountry = str_extract_all(title, input$selectCountry))%>%
-      filter(hasCountry == input$selectCountry) %>%
+      filter(over_18 == ifelse(input$paises18 == TRUE, 
+                               over_18, 
+                               "FALSE")) %>%
+      unnest_tokens(output = pais, input = title) %>% 
+      count(pais, sort = TRUE) %>%
+      mutate(isCountr = pais %in% countries) %>%
+      filter(isCountr == TRUE) %>%
+      mutate(pais = reorder(pais,n)) %>%
       DT::datatable()
   })
   
@@ -211,22 +214,26 @@ shinyServer(function(input, output) {
       select(date_created, title, over_18, up_votes, down_votes)%>%
       filter(date_created >= as_date(input$dateRangepop[1]) & 
                date_created <= as_date(input$dateRangepop[2])) %>%
-      filter(over_18 == ifelse(input$mas18pop == TRUE, "True", "False")) %>%
+      filter(over_18 == ifelse(input$mas18pop == TRUE, 
+                               over_18, 
+                               "FALSE")) %>%
       unnest_tokens(output = word, input = title) %>% 
       group_by(word) %>% 
       summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 
       mutate(isCommon = word %in% commonWords) %>%
       filter(isCommon == FALSE) %>%
-      filter(n >= input$selectMinPalabras) %>% 
-      mutate(word = reorder(word,promedio)) %>%
+
       DT::datatable(options = list(order = list(list(4, 'desc'))))
   })
   output$palabrasPop <- renderPlot({
+    print(input$dateRange[1])
     reddit %>% 
       select(date_created, title, over_18, up_votes, down_votes)%>%
       filter(date_created >= as_date(input$dateRangepop[1]) & 
                date_created <= as_date(input$dateRangepop[2])) %>%
-      filter(over_18 == ifelse(input$mas18pop == TRUE, "True", "False")) %>%
+      filter(over_18 == ifelse(input$mas18pop == TRUE, 
+                               over_18, 
+                               "FALSE")) %>%
       unnest_tokens(output = word, input = title) %>% 
       group_by(word) %>% 
       summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 

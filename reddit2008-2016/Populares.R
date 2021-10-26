@@ -25,7 +25,7 @@ library(purrr)
 library(tidyr)
 
 #Base de datos
-reddit <- read.csv("/Users/andreareyes/Desktop/Data Product/parcial2/revolution/reddit_worldnews_start_to_2016-11-22.csv")
+reddit <- read.csv("C:/Users/JPMR0/Desktop/DPparcial/revolution/reddit2008-2016/reddit_worldnews_start_to_2016-11-22.csv")
 
 #Limpieza de datos
 reddit <- reddit %>%
