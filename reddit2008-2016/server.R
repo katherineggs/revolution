@@ -187,16 +187,12 @@ shinyServer(function(input, output) {
       labs(x = "Cant. veces", y = "País") +
       geom_text(aes(label = n), hjust = 1.2, colour = "white", fontface = "bold")
   })
+  
   output$tblPais <- DT::renderDataTable({
     reddit %>% 
-      filter(over_18 == ifelse(input$paises18 == TRUE, 
-                               over_18, 
-                               "False")) %>%
-      unnest_tokens(output = pais, input = title) %>% 
-      count(pais, sort = TRUE) %>%
-      mutate(isCountr = pais %in% countries) %>%
-      filter(isCountr == TRUE) %>%
-      mutate(pais = reorder(pais,n)) %>%
+      select(date_created,up_votes,title,author) %>%
+      mutate(hasCountry = str_extract_all(title, input$selectCountry))%>%
+      filter(hasCountry == input$selectCountry) %>%
       DT::datatable()
   })
   

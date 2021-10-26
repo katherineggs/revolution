@@ -44,7 +44,7 @@ shinyUI(fluidPage(
                        sidebarPanel(
                            width = 3,
                            selectInput('datePopularesA', 'Seleccione un año:',
-                               choices = 2008:2016)
+                               choices = 2008:2010)
                           
                        #sidebarPanel
                        ),
@@ -85,7 +85,8 @@ shinyUI(fluidPage(
                              solidHeader = T,
                              width = 12,
                              verbatimTextOutput('plot_click_option_values')
-                           )
+                           ),
+                         h5("*Puede ver la informacion de un click, doble click y hover"),
                        )
                        ),
               
