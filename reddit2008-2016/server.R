@@ -16,7 +16,7 @@ reddit <- read.csv("reddit_worldnews_start_to_2016-11-22.csv", nrows=60000)
 
 #Limpieza de datos
 reddit <- reddit %>%
-  mutate(date_created = ifelse( suppressWarnings(is.na(ymd(date_created))), suppressWarnings(mdy(date_created)), suppressWarnings(ymd(date_created)))) %>% 
+  mutate(date_createdd = ifelse(is.na(ymd(date_created)), "mdy(date_created)", "ymd(date_created)")) %>% 
   mutate(year = format(as.Date(date_created, origin="1970-01-01"),  "%Y"))
 
 #Estos son los personajes públicos más admirados del mundo 
@@ -217,11 +217,6 @@ shinyServer(function(input, output) {
       filter(over_18 == ifelse(input$mas18pop == TRUE, 
                                over_18, 
                                "FALSE")) %>%
-      unnest_tokens(output = word, input = title) %>% 
-      group_by(word) %>% 
-      summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 
-      mutate(isCommon = word %in% commonWords) %>%
-      filter(isCommon == FALSE) %>%
 
       DT::datatable(options = list(order = list(list(4, 'desc'))))
   })
