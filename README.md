@@ -6,3 +6,4 @@ Parcial 2 de Data Product para evaluar las competencias adquiridas en la creaci√
 - Jean Pierre Mejicanos
 - Katherine Garc√≠a
 
+Link to our Shinyapp: https://andreareyes.shinyapps.io/reddit2008-2016/
