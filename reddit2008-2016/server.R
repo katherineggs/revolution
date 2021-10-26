@@ -158,11 +158,12 @@ shinyServer(function(input, output) {
                date_created <= as_date(input$dateRange[2])) %>%
       filter(over_18 == ifelse(input$mas18pop == TRUE, 
                                over_18, 
-                               "FALSE")) %>%
+                               "False")) %>%
       unnest_tokens(output = word, input = title) %>% 
       count(word, sort = TRUE) %>%
       mutate(isCommon = word %in% commonWords) %>%
       filter(isCommon == FALSE) %>%
+      top_n(20, n) %>%
       mutate(word = reorder(word,n)) %>%
       ggplot(aes(n,word))+
       geom_col(fill = "green") +
@@ -174,11 +175,12 @@ shinyServer(function(input, output) {
     reddit %>% 
       filter(over_18 == ifelse(input$paises18 == TRUE, 
                                over_18, 
-                               "FALSE")) %>%
+                               "False")) %>%
       unnest_tokens(output = pais, input = title) %>% 
       count(pais, sort = TRUE) %>%
       mutate(isCountr = pais %in% countries) %>%
       filter(isCountr == TRUE) %>%
+      top_n(20, n) %>%
       mutate(pais = reorder(pais,n)) %>%
       ggplot(aes(n,pais))+
       geom_col(fill = "purple") +
@@ -189,7 +191,7 @@ shinyServer(function(input, output) {
     reddit %>% 
       filter(over_18 == ifelse(input$paises18 == TRUE, 
                                over_18, 
-                               "FALSE")) %>%
+                               "False")) %>%
       unnest_tokens(output = pais, input = title) %>% 
       count(pais, sort = TRUE) %>%
       mutate(isCountr = pais %in% countries) %>%
@@ -212,23 +214,29 @@ shinyServer(function(input, output) {
   output$tblPalabras <- DT::renderDataTable({
     reddit %>% 
       select(date_created, title, over_18, up_votes, down_votes)%>%
-      filter(date_created >= as_date(input$dateRangepop[1]) & 
-               date_created <= as_date(input$dateRangepop[2])) %>%
+      filter(ymd(date_created) >= ymd(input$dateRangepop[1]) & 
+               date_created <= ymd(input$dateRangepop[2])) %>%
       filter(over_18 == ifelse(input$mas18pop == TRUE, 
                                over_18, 
-                               "FALSE")) %>%
-
+                               "False")) %>%
+      unnest_tokens(output = word, input = title) %>% 
+      group_by(word) %>% 
+      summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 
+      mutate(isCommon = word %in% commonWords) %>%
+      filter(isCommon == FALSE) %>%
+      filter(n >= input$selectMinPalabras) %>% 
+      mutate(word = reorder(word,promedio)) %>% 
       DT::datatable(options = list(order = list(list(4, 'desc'))))
   })
   output$palabrasPop <- renderPlot({
     print(input$dateRange[1])
     reddit %>% 
       select(date_created, title, over_18, up_votes, down_votes)%>%
-      filter(date_created >= as_date(input$dateRangepop[1]) & 
-               date_created <= as_date(input$dateRangepop[2])) %>%
+      filter(ymd(date_created) >= ymd(input$dateRangepop[1]) & 
+               date_created <= ymd(input$dateRangepop[2])) %>%
       filter(over_18 == ifelse(input$mas18pop == TRUE, 
                                over_18, 
-                               "FALSE")) %>%
+                               "False")) %>%
       unnest_tokens(output = word, input = title) %>% 
       group_by(word) %>% 
       summarise(n = n(), upvotes = sum(up_votes), promedio = sum(up_votes)/n()) %>% 
